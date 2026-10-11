@@ -1,0 +1,21 @@
+# Backend
+backend/target/
+backend/.mvn/
+backend/*.class
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.env.local
+
+# OS
+.DS_Store
+
+# Secrets - never commit (examples ending in .example are fine)
+.env
+.env.*
+!.env.example
+backend/.env
+frontend/.env
+frontend/.env.local

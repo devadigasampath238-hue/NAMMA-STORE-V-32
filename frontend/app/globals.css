@@ -1,0 +1,542 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&family=Noto+Sans+Kannada:wght@500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===========================================================
+   NAMMA STORE DESIGN SYSTEM
+   -----------------------------------------------------------
+   Warm sandalwood / turmeric / Karnataka-red palette. Deliberately
+   NOT a marketplace blue-and-yellow: the usability patterns are
+   familiar, the branding is our own.
+   =========================================================== */
+
+:root {
+  --font-kannada: "Noto Sans Kannada", sans-serif;
+
+  --ns-page: #fffdf8;       /* warm cream, not flat white */
+  --ns-surface: #ffffff;
+  --ns-ink: #2b1a12;
+  --ns-ink-soft: #6b5546;
+  --ns-line: #f0e2d2;
+
+  --ns-radius: 0.875rem;
+  --ns-radius-lg: 1.25rem;
+
+  /* One knob for the watermark so it can be tuned in one place.
+     0.035 was effectively invisible - the page just read as blank white.
+     0.10 with multiply blending keeps body text at well over the 4.5:1
+     contrast ratio while the logo is actually perceptible. */
+  --ns-watermark-size: 680px;
+  --ns-watermark-opacity: 0.1;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  /* Nothing may push the page sideways on small screens. */
+  overflow-x: hidden;
+}
+
+body {
+  color: var(--ns-ink);
+  background-color: var(--ns-page);
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* -----------------------------------------------------------
+   LOGO WATERMARK
+   -----------------------------------------------------------
+   The opacity lives on this pseudo-element ONLY - never on body
+   or on any content wrapper - so text stays at full contrast.
+
+   `mix-blend-mode: multiply` matters here: the asset is a JPEG
+   with a solid light background, and without blending you would
+   see a faint rectangle instead of just the mark.
+
+   It is fixed and pointer-events:none, so it never scrolls
+   awkwardly and never swallows a click.
+   ----------------------------------------------------------- */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url("/logo.jpeg");
+  background-repeat: no-repeat;
+  background-position: center center;
+  /* `contain` inside a capped box: never cropped, never stretched. */
+  background-size: var(--ns-watermark-size) auto;
+  opacity: var(--ns-watermark-opacity);
+  mix-blend-mode: multiply;
+}
+
+/* Keep the watermark proportionate instead of dominating small screens. */
+@media (max-width: 1024px) {
+  :root { --ns-watermark-size: 460px; }
+}
+@media (max-width: 640px) {
+  /* Slightly lower on phones: content sits closer to the mark there,
+     so the same opacity would start competing with the text. */
+  :root { --ns-watermark-size: 300px; --ns-watermark-opacity: 0.075; }
+}
+
+/* Every real element sits above the watermark. */
+body > * {
+  position: relative;
+  z-index: 1;
+}
+
+h1, h2, h3, h4, .font-heading {
+  font-family: "Poppins", ui-sans-serif, system-ui, sans-serif;
+}
+
+.font-kannada {
+  font-family: var(--font-kannada);
+}
+
+/* Visible focus for keyboard users, invisible for mouse users. */
+:focus-visible {
+  outline: 2px solid #c2410c;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: #ffd68a;
+  color: #5c220d;
+}
+
+/* ===========================================================
+   COMPONENTS
+   =========================================================== */
+
+@layer components {
+  .ns-card {
+    @apply bg-white rounded-xl2 border border-brand-100 shadow-card transition-shadow duration-200;
+  }
+
+  .ns-card-hover {
+    @apply hover:shadow-cardHover hover:-translate-y-0.5 transition-all duration-200;
+  }
+
+  .ns-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 bg-gradient-to-b from-brand-500 to-brand-700 text-white font-medium rounded-lg px-5 py-2.5 shadow-sm hover:from-brand-600 hover:to-brand-800 active:scale-[0.98] transition disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed;
+  }
+
+  .ns-btn-outline {
+    @apply inline-flex items-center justify-center gap-2 border border-brand-600 text-brand-700 font-medium rounded-lg px-5 py-2.5 hover:bg-brand-50 active:scale-[0.98] transition disabled:border-gray-200 disabled:text-gray-300 disabled:cursor-not-allowed;
+  }
+
+  .ns-btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 text-brand-700 font-medium hover:text-brand-900 transition;
+  }
+
+  .ns-input {
+    @apply w-full border border-brand-100 bg-white rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 focus:border-brand-400 transition;
+  }
+
+  .ns-label {
+    @apply block text-sm font-medium text-brand-900 mb-1.5;
+  }
+
+  .ns-section-title {
+    @apply font-heading text-xl md:text-2xl font-semibold text-brand-900;
+  }
+
+  .ns-badge {
+    @apply inline-flex items-center text-xs font-medium rounded-full px-2.5 py-1;
+  }
+
+  /* Responsive product grid used by every listing surface. */
+  .ns-grid-products {
+    @apply grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4;
+  }
+
+  /* Translucent panel so the watermark stays faintly visible behind
+     large content blocks instead of being fully masked by solid white. */
+  .ns-panel {
+    @apply bg-white/85 backdrop-blur-[2px] rounded-xl2 border border-brand-100 shadow-card;
+  }
+}
+
+/* ===========================================================
+   ANIMATION
+   -----------------------------------------------------------
+   Plain CSS on purpose: framer-motion is not a dependency of this
+   project, and adding one for entrance fades would be a poor trade.
+   =========================================================== */
+
+@keyframes ns-fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ns-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes ns-scale-in {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes ns-slide-in-right {
+  from { opacity: 0; transform: translateX(24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes ns-heart-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.35); }
+  70%  { transform: scale(0.92); }
+  100% { transform: scale(1); }
+}
+
+@keyframes ns-cart-bump {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+/* Success tick: the circle sweeps, then the check draws. */
+@keyframes ns-draw-circle {
+  from { stroke-dashoffset: 300; }
+  to   { stroke-dashoffset: 0; }
+}
+
+@keyframes ns-draw-check {
+  from { stroke-dashoffset: 60; }
+  to   { stroke-dashoffset: 0; }
+}
+
+@keyframes ns-confetti-fall {
+  0%   { opacity: 1; transform: translateY(-10px) rotate(0deg); }
+  100% { opacity: 0; transform: translateY(260px) rotate(540deg); }
+}
+
+@keyframes ns-shimmer {
+  100% { transform: translateX(100%); }
+}
+
+@keyframes ns-spin {
+  to { transform: rotate(360deg); }
+}
+
+.ns-animate-fade-up   { animation: ns-fade-up 0.4s ease-out both; }
+.ns-animate-fade-in   { animation: ns-fade-in 0.3s ease-out both; }
+.ns-animate-scale-in  { animation: ns-scale-in 0.22s ease-out both; }
+.ns-animate-slide-in  { animation: ns-slide-in-right 0.28s ease-out both; }
+.ns-animate-heart     { animation: ns-heart-pop 0.4s ease-out; }
+.ns-animate-cart-bump { animation: ns-cart-bump 0.35s ease-out; }
+.ns-animate-spin      { animation: ns-spin 0.8s linear infinite; }
+
+/* Staggered entrance for grids - cheap, and caps out so a 60-item
+   grid does not leave the last card waiting three seconds. */
+.ns-stagger > *        { animation: ns-fade-up 0.4s ease-out both; }
+.ns-stagger > *:nth-child(1) { animation-delay: 0.00s; }
+.ns-stagger > *:nth-child(2) { animation-delay: 0.04s; }
+.ns-stagger > *:nth-child(3) { animation-delay: 0.08s; }
+.ns-stagger > *:nth-child(4) { animation-delay: 0.12s; }
+.ns-stagger > *:nth-child(5) { animation-delay: 0.16s; }
+.ns-stagger > *:nth-child(6) { animation-delay: 0.20s; }
+.ns-stagger > *:nth-child(7) { animation-delay: 0.24s; }
+.ns-stagger > *:nth-child(n+8) { animation-delay: 0.28s; }
+
+.ns-skeleton {
+  position: relative;
+  overflow: hidden;
+  background: #f6ead9;
+}
+
+.ns-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+  animation: ns-shimmer 1.4s infinite;
+}
+
+.ns-success-circle {
+  stroke-dasharray: 300;
+  animation: ns-draw-circle 0.6s ease-out forwards;
+}
+
+.ns-success-check {
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  animation: ns-draw-check 0.35s 0.5s ease-out forwards;
+}
+
+.ns-confetti-piece {
+  animation: ns-confetti-fall 1.6s ease-in forwards;
+}
+
+/* Hide the scrollbar on horizontal strips (thumbnails, chips) while
+   keeping them scrollable and keyboard accessible. */
+.ns-no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.ns-no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ===========================================================
+   REDUCED MOTION
+   -----------------------------------------------------------
+   Honour the OS setting: content still appears, it just does not
+   move. Note `animation-iteration-count: 1` rather than `none`,
+   so draw-on animations still end in their final state.
+   =========================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .ns-card-hover:hover {
+    transform: none;
+  }
+}
+
+@media print {
+  body::before { display: none; }
+}
+
+/* ===========================================================
+   KARNATAKA / KANNADA VISUAL IDENTITY
+   -----------------------------------------------------------
+   Supporting utilities for karnataka.tsx (TempleSkylineDivider,
+   YakshaganaPatternStrip, ChariotWheelBadge, WaveDivider,
+   RevealOnScroll, useParallaxOffset). Kept in the same CSS-only,
+   no-new-dependency spirit as the rest of this file.
+   =========================================================== */
+
+/* Scroll-reveal: hidden+lowered until RevealOnScroll flips this on,
+   then eases up into place. prefers-reduced-motion (further below)
+   already forces near-zero durations globally, so no separate
+   override is needed here. */
+.ns-reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+  will-change: opacity, transform;
+}
+.ns-reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Micro-interaction: a slightly stronger lift+tilt for showcase
+   cards (influencer/creator cards, festival tiles) than the plain
+   .ns-card-hover shadow bump already used for product cards. */
+.ns-tilt-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.ns-tilt-card:hover {
+  transform: translateY(-4px) scale(1.015);
+  box-shadow: 0 12px 30px rgba(124, 45, 18, 0.18);
+}
+
+/* Thin Kannada-flag-coloured accent rule, used to bookend Karnataka
+   identity sections (creators, festival campaigns) instead of a
+   plain brand-colour line. */
+.ns-flag-rule {
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #f2a93b 0%, #f2a93b 50%, #b3231c 50%, #b3231c 100%);
+  background-size: 24px 100%;
+}
+
+/* Soft radial glow behind a decorative SVG badge (chariot wheel,
+   temple skyline) so it reads as an intentional motif rather than a
+   flat line-drawing pasted on a plain background. */
+.ns-motif-glow {
+  position: relative;
+}
+.ns-motif-glow::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  z-index: -1;
+  background: radial-gradient(circle, rgba(253, 182, 76, 0.35), transparent 70%);
+  filter: blur(6px);
+}
+
+
+/* ===========================================================
+   V26 - KARNATAKA DESIGN LAYER
+   Mysore-silk borders, Ilkal-saree zigzag, temple-lattice and
+   a refined card/table/admin language. Subtle by design.
+   =========================================================== */
+
+:root {
+  --kar-red: #BF2A1E;
+  --kar-gold: #F5B90A;
+  --kar-coffee: #22140F;
+  --kar-ivory: #FFFBF3;
+}
+
+body { background-color: var(--kar-ivory); color: #33201A; }
+
+/* Mysore silk: a woven red + gold stripe, used as a header/section rule. */
+.kar-silk {
+  height: 6px;
+  background:
+    repeating-linear-gradient(90deg, var(--kar-red) 0 14px, var(--kar-gold) 14px 18px, var(--kar-red) 18px 32px, #7A1816 32px 35px);
+}
+.kar-silk-thin { height: 3px; background: linear-gradient(90deg, var(--kar-red), var(--kar-gold), var(--kar-red)); }
+
+/* Ilkal-saree zigzag edge. */
+.kar-zigzag {
+  height: 10px;
+  background:
+    linear-gradient(135deg, var(--kar-gold) 25%, transparent 25%) -5px 0 / 10px 10px,
+    linear-gradient(225deg, var(--kar-gold) 25%, transparent 25%) -5px 0 / 10px 10px,
+    linear-gradient(315deg, var(--kar-red) 25%, transparent 25%) 0 0 / 10px 10px,
+    linear-gradient(45deg, var(--kar-red) 25%, transparent 25%) 0 0 / 10px 10px;
+  background-color: #7A1816;
+}
+
+/* Hoysala / temple lattice: a faint diamond lattice for large surfaces. */
+.kar-lattice {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Cg fill='none' stroke='%23F5B90A' stroke-opacity='.22' stroke-width='1'%3E%3Cpath d='M22 2 42 22 22 42 2 22Z'/%3E%3Cpath d='M22 12 32 22 22 32 12 22Z'/%3E%3Ccircle cx='22' cy='22' r='2.5' fill='%23F5B90A' fill-opacity='.25'/%3E%3C/g%3E%3C/svg%3E");
+}
+.kar-lattice-dark {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Cg fill='none' stroke='%23F5B90A' stroke-opacity='.10' stroke-width='1'%3E%3Cpath d='M22 2 42 22 22 42 2 22Z'/%3E%3Cpath d='M22 12 32 22 22 32 12 22Z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.font-display { font-family: "Fraunces", Georgia, serif; letter-spacing: -0.01em; }
+
+/* Gold-rimmed corner accent on premium cards. */
+.kar-corner { position: relative; }
+.kar-corner::after {
+  content: ""; position: absolute; top: 0; right: 0; width: 46px; height: 46px; pointer-events: none;
+  background: linear-gradient(225deg, rgba(245,185,10,.30) 0 50%, transparent 50%);
+  border-top-right-radius: inherit;
+}
+
+@layer components {
+  .ns-card {
+    @apply bg-white rounded-2xl border border-brand-100/70 shadow-card transition-all duration-200;
+  }
+  .ns-card-hover { @apply hover:shadow-cardHover hover:-translate-y-1 transition-all duration-300; }
+
+  /* ---- admin language ---- */
+  .adm-page { @apply min-h-screen flex-1 min-w-0 bg-ivory; }
+  .adm-body { @apply mx-auto w-full max-w-[1400px] px-4 pb-12 pt-5 md:px-8; }
+  .adm-kpi {
+    @apply relative overflow-hidden rounded-2xl border border-brand-100/70 bg-white p-4 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-cardHover md:p-5;
+  }
+  .adm-kpi-icon {
+    @apply grid h-10 w-10 place-items-center rounded-xl text-white shadow-sm;
+    background: linear-gradient(145deg, var(--kar-red), #7A1816);
+  }
+  .adm-chip { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium; }
+  .adm-th { @apply px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-brand-800; }
+  .adm-tab { @apply whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium text-coffee-700 transition hover:bg-brand-50; }
+  .adm-tab-active { @apply bg-coffee-900 text-gold-200 shadow-sm hover:bg-coffee-900; }
+}
+
+@keyframes kar-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.anim-rise { animation: kar-rise .45s cubic-bezier(.2,.7,.2,1) both; }
+.anim-rise-2 { animation: kar-rise .45s .08s cubic-bezier(.2,.7,.2,1) both; }
+.anim-rise-3 { animation: kar-rise .45s .16s cubic-bezier(.2,.7,.2,1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-rise, .anim-rise-2, .anim-rise-3 { animation: none; }
+}
+
+/* ===========================================================
+   V29 - CUSTOMER ANIMATION LAYER (ನಮ್ಮ ಸ್ಟೋರ್)
+   Everything is transform/opacity only (GPU friendly) and is
+   switched off under prefers-reduced-motion.
+   =========================================================== */
+
+/* scroll reveal (driven by <Reveal/>) */
+.rv { opacity: 0; transform: translateY(26px) scale(.985); transition: opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1); transition-delay: var(--rv-delay, 0ms); will-change: opacity, transform; }
+.rv.rv-in { opacity: 1; transform: none; }
+.rv-left { transform: translateX(-34px); }
+.rv-right { transform: translateX(34px); }
+.rv-zoom { transform: scale(.92); }
+
+/* marquee ticker (Kannada greetings strip) */
+@keyframes kar-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.kar-marquee { display: flex; width: max-content; animation: kar-marquee 38s linear infinite; }
+.kar-marquee:hover { animation-play-state: paused; }
+
+/* gentle floating motif */
+@keyframes kar-float { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-10px) rotate(4deg); } }
+.kar-float { animation: kar-float 7s ease-in-out infinite; }
+@keyframes kar-spin-slow { to { transform: rotate(360deg); } }
+.kar-spin-slow { animation: kar-spin-slow 40s linear infinite; }
+
+/* shine sweep on primary buttons / badges */
+.kar-shine { position: relative; overflow: hidden; }
+.kar-shine::after { content: ""; position: absolute; inset: 0; transform: translateX(-120%) skewX(-18deg); background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent); transition: transform .7s ease; }
+.kar-shine:hover::after { transform: translateX(120%) skewX(-18deg); }
+
+/* animated gold ring around featured things */
+@keyframes kar-ring { 0% { box-shadow: 0 0 0 0 rgba(245,185,10,.55); } 100% { box-shadow: 0 0 0 14px rgba(245,185,10,0); } }
+.kar-ring { animation: kar-ring 2.2s ease-out infinite; }
+
+/* hero text entrance */
+@keyframes kar-hero-in { from { opacity: 0; transform: translateY(22px); letter-spacing: .08em; } to { opacity: 1; transform: none; letter-spacing: normal; } }
+.kar-hero-in   { animation: kar-hero-in .9s .15s cubic-bezier(.2,.7,.2,1) both; }
+.kar-hero-in-2 { animation: kar-hero-in .9s .35s cubic-bezier(.2,.7,.2,1) both; }
+.kar-hero-in-3 { animation: kar-hero-in .9s .55s cubic-bezier(.2,.7,.2,1) both; }
+
+/* Ken-Burns slow zoom on banners */
+@keyframes kar-kenburns { from { transform: scale(1); } to { transform: scale(1.07); } }
+.kar-kenburns img { animation: kar-kenburns 14s ease-out both; }
+
+/* card interactions */
+.kar-tilt { transition: transform .35s cubic-bezier(.2,.7,.2,1), box-shadow .35s; }
+.kar-tilt:hover { transform: translateY(-6px) rotate(-.4deg); box-shadow: 0 22px 38px -14px rgba(122,24,22,.35); }
+.kar-zoom img { transition: transform .8s cubic-bezier(.2,.7,.2,1); }
+.kar-zoom:hover img { transform: scale(1.08); }
+
+/* circular category chips */
+.kar-chip { transition: transform .35s cubic-bezier(.2,.7,.2,1); }
+.kar-chip:hover { transform: translateY(-6px); }
+.kar-chip:hover .kar-chip-ring { background: conic-gradient(from 0deg, #BF2A1E, #F5B90A, #BF2A1E); transform: rotate(180deg); }
+.kar-chip-ring { transition: transform .8s ease; background: conic-gradient(from 0deg, #F5B90A, #BF2A1E, #F5B90A); }
+
+/* welcome splash: flag-coloured curtains that part */
+@keyframes kar-curtain-l { to { transform: translateX(-101%); } }
+@keyframes kar-curtain-r { to { transform: translateX(101%); } }
+@keyframes kar-splash-text { 0% { opacity: 0; transform: scale(.9); } 25%,70% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.06); } }
+.kar-curtain-l { animation: kar-curtain-l 1s 2.1s cubic-bezier(.7,0,.2,1) forwards; }
+.kar-curtain-r { animation: kar-curtain-r 1s 2.1s cubic-bezier(.7,0,.2,1) forwards; }
+.kar-splash-text { animation: kar-splash-text 2.4s ease both; }
+
+/* section title underline that draws itself */
+@keyframes kar-draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.kar-underline { transform-origin: left; animation: kar-draw .9s .2s ease both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rv { opacity: 1; transform: none; transition: none; }
+  .kar-marquee, .kar-float, .kar-spin-slow, .kar-ring, .kar-kenburns img,
+  .kar-hero-in, .kar-hero-in-2, .kar-hero-in-3, .kar-underline { animation: none; }
+  .kar-curtain-l, .kar-curtain-r, .kar-splash-text { animation-duration: .01s; animation-delay: 0s; }
+}
+
+
+/* ---- V30: no horizontal scroll, ever (clip keeps position:sticky working) ---- */
+html, body { max-width: 100%; overflow-x: clip; }
+img, svg, video { max-width: 100%; }
